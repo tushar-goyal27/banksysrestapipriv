@@ -72,6 +72,13 @@ router.post("/withdraw", auth, (req, res) => {
         });
     }
 
+    if (req.body.transtype != "atm" && req.body.transtype != "direct") {
+        return res.status(500).json({
+            message: "Invalid Transtype"
+        });
+    }
+    
+
     Account.findOne({accnum: accnum}).exec()
     .then(account => {
         if (account.username != username) {

@@ -12,14 +12,15 @@ const router = express.Router();
 router.post("/create", auth, (req, res) => {
     const username = req.userdata.username;
     
-    // Check if every req parameter is passed
-    if (!(req.body.acctype && req.body.balance)) {
-        return res.status(500).json({
-            message: "Required Parameters acctype, balance not passed"
-        });
-    }
+    
     
     if (req.body.acctype.toLowerCase() == "savings") {
+        // Check if every req parameter is passed
+        if (!(req.body.acctype && req.body.balance)) {
+            return res.status(500).json({
+                message: "Required Parameters acctype, balance not passed"
+            });
+        }
         if (req.body.balance < 10000 || !req.body.balance) {
             return res.status(400).json({
                 message: "Invalid ammount"
@@ -82,6 +83,12 @@ router.post("/create", auth, (req, res) => {
             res.status(404).json({error: err});
         });
     } else if (req.body.acctype.toLowerCase() == "current") {
+        // Check if every req parameter is passed
+        if (!(req.body.acctype && req.body.balance)) {
+            return res.status(500).json({
+                message: "Required Parameters acctype, balance not passed"
+            });
+        }
         if (req.body.balance < 100000 || !req.body.balance) {
             return res.status(400).json({
                 message: "Invalid ammount"
