@@ -28,7 +28,7 @@ mongoose.connect(process.env.DB_CONNECTION, () => {
 // Scheduled task for interest and fees payment
 schedule.initScheduledFunc();
 
-app.route("/", (req, res) => {
+app.get("/", (req, res) => {
     res.status(200).send("Server Started");
 })
 
