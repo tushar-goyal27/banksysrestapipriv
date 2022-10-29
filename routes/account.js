@@ -11,17 +11,16 @@ const router = express.Router();
 
 router.post("/create", auth, (req, res) => {
     const username = req.userdata.username;
-    
-    
+    const bankbalance = parseInt(req.body.balance);
     
     if (req.body.acctype.toLowerCase() == "savings") {
         // Check if every req parameter is passed
-        if (!(req.body.acctype && req.body.balance)) {
+        if (!(req.body.acctype && bankbalance)) {
             return res.status(500).json({
                 message: "Required Parameters acctype, balance not passed"
             });
         }
-        if (req.body.balance < 10000 || !req.body.balance) {
+        if (bankbalance < 10000 || !bankbalance) {
             return res.status(400).json({
                 message: "Invalid ammount"
             });
@@ -47,7 +46,7 @@ router.post("/create", auth, (req, res) => {
             acctype: req.body.acctype.toLowerCase(),
             accnum: accnum,
             openingdate: today,
-            balance: req.body.balance,
+            balance: bankbalance,
             atmcardnum: atmcardnum,
             atmcardcvv: cvv,
             atmcardexp: exp,
@@ -55,7 +54,7 @@ router.post("/create", auth, (req, res) => {
                 otherPartyAccNum: accnum,
                 type: "credit",
                 source: "deposit",
-                amount: req.body.balance,
+                amount: bankbalance,
                 dateOfTrans: today
             }]
         });
@@ -84,12 +83,12 @@ router.post("/create", auth, (req, res) => {
         });
     } else if (req.body.acctype.toLowerCase() == "current") {
         // Check if every req parameter is passed
-        if (!(req.body.acctype && req.body.balance)) {
+        if (!(req.body.acctype && bankbalance)) {
             return res.status(500).json({
                 message: "Required Parameters acctype, balance not passed"
             });
         }
-        if (req.body.balance < 100000 || !req.body.balance) {
+        if (bankbalance < 100000 || !bankbalance) {
             return res.status(400).json({
                 message: "Invalid ammount"
             });
@@ -113,12 +112,12 @@ router.post("/create", auth, (req, res) => {
                 acctype: req.body.acctype.toLowerCase(),
                 accnum: accnum,
                 openingdate: today,
-                balance: req.body.balance,
+                balance: bankbalance,
                 transactions: [{
                     otherPartyAccNum: accnum,
                     type: "credit",
                     source: "deposit",
-                    amount: req.body.balance,
+                    amount: bankbalance,
                     dateOfTrans: today
                 }]
             });
@@ -154,9 +153,10 @@ router.post("/create", auth, (req, res) => {
     } else if(req.body.acctype.toLowerCase() == "loan") {
         const today = new Date();
         const accnum = req.body.accnum;
+        const loanamount = parseInt(req.body.loanAmount);
 
         // Check if every req parameter is passed
-        if (!(req.body.accnum && req.body.loanAmount && req.body.loanDurYears && req.body.loanType)) {
+        if (!(req.body.accnum && loanamount && req.body.loanDurYears && req.body.loanType)) {
             return res.status(500).json({
                 message: "Required Parameters accnum, loanAmount, loanType or loanDurYears not passed"
             });
@@ -178,7 +178,7 @@ router.post("/create", auth, (req, res) => {
                         message: "Auth Failed"
                     });
                 }
-                if (req.body.loanAmount < 500000 || Math.abs(today - user.dob) < 7899000000000 || req.body.loanDurYears < 2) {
+                if (loanamount < 500000 || Math.abs(today - user.dob) < 7899000000000 || req.body.loanDurYears < 2) {
                     return res.status(409).json({
                         message: "Can't give loan"
                     });
@@ -187,18 +187,18 @@ router.post("/create", auth, (req, res) => {
                 account.loan = {
                     loanType: req.body.loanType.toLowerCase(),
                     loanDurYears: req.body.loanDurYears,
-                    loanAmount: req.body.loanAmount,
-                    amountLeft: req.body.loanAmount,
+                    loanAmount: loanamount,
+                    amountLeft: loanamount,
                     loanDate: today
                 }
 
-                account.balance += req.body.loanAmount;
+                account.balance += loanamount;
 
                 account.transactions.push({
                     otherPartyAccNum: 987654321012, // Account number of the bank from which loan was given
                     type: "credit",
                     source: "loan",
-                    amount: req.body.loanAmount,
+                    amount: loanamount,
                     dateOfTrans: today
                 });
 

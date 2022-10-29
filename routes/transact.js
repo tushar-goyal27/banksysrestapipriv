@@ -14,7 +14,7 @@ router.post("/deposit", auth, (req, res) => {
     const accnum = req.body.accnum;
 
     // Check if every req parameter is passed
-    if (!(req.body.accnum && req.body.amount)) {
+    if (!(req.body.accnum && parseInt(req.body.amount))) {
         return res.status(500).json({
             message: "Required Parameters accnum and amount not passed"
         });
@@ -28,19 +28,19 @@ router.post("/deposit", auth, (req, res) => {
                 message: "Unauthorized"
             });
         }
-        if (req.body.amount <= 0) {
+        if (parseInt(req.body.amount) <= 0) {
             return res.status(409).json({
                 message: "Invalid Amount"
             });
         }
-        account.balance += req.body.amount;
+        account.balance += parseInt(req.body.amount);
         const today = new Date();
 
         account.transactions.push({
             otherPartyAccNum: accnum,
             type: "credit",
             source: "deposit",
-            amount: req.body.amount,
+            amount: parseInt(req.body.amount),
             dateOfTrans: today
         });
 
@@ -66,7 +66,7 @@ router.post("/withdraw", auth, (req, res) => {
     const accnum = req.body.accnum;
 
     // Check if every req parameter is passed
-    if (!(req.body.accnum && req.body.amount && req.body.transtype)) {
+    if (!(req.body.accnum && parseInt(req.body.amount) && req.body.transtype)) {
         return res.status(500).json({
             message: "Required Parameters accnum, amount or transtype not passed"
         });
@@ -92,13 +92,13 @@ router.post("/withdraw", auth, (req, res) => {
                 message: "Withdrawl are from only savings account"
             });
         } else {
-            if (req.body.amount <= 0 || req.body.amount > 50000) {
+            if (parseInt(req.body.amount) <= 0 || parseInt(req.body.amount) > 50000) {
                 return res.status(409).json({
                     message: "Invalid Amount"
                 });
             }
 
-            if (req.body.amount > account.balance) {
+            if (parseInt(req.body.amount) > account.balance) {
                 return res.status(409).json({
                     message: "Insufficient Balance"
                 });
@@ -130,20 +130,20 @@ router.post("/withdraw", auth, (req, res) => {
                 i--;
             }
 
-            if (dailywithsum + req.body.amount > 50000) {
-                console.log(dailywithsum + req.body.amount);
+            if (dailywithsum + parseInt(req.body.amount) > 50000) {
+                console.log(dailywithsum + parseInt(req.body.amount));
                 return res.status(409).json({
                     message: "Daily withdrawal limit passed"
                 });
             }
 
-            if (req.body.amount > 20000 && req.body.transtype == "atm") {
+            if (parseInt(req.body.amount) > 20000 && req.body.transtype == "atm") {
                 return res.status(409).json({
                     message: "Transactional Amount limit crossed"
                 });
             }
 
-            account.balance -= req.body.amount;
+            account.balance -= parseInt(req.body.amount);
 
             // Check if account has more than 5 atm transactions
             if (monthatmtrans >= 5 && req.body.transtype == "atm") {
@@ -162,7 +162,7 @@ router.post("/withdraw", auth, (req, res) => {
                 otherPartyAccNum: accnum,
                 type: "debit",
                 source: req.body.transtype,
-                amount: req.body.amount,
+                amount: parseInt(req.body.amount),
                 dateOfTrans: today
             });
 
@@ -189,7 +189,7 @@ router.post("/transfer", auth, (req, res) => {
     const accnum = req.body.accnum;
 
     // Checking if all req params are present
-    if (!(req.body.accnum && req.body.amount && req.body.transferTo)) {
+    if (!(req.body.accnum && parseInt(req.body.amount) && req.body.transferTo)) {
         return res.status(500).json({
             message: "Required Parameters accnum, amount or transferTo not passed"
         });
@@ -208,12 +208,12 @@ router.post("/transfer", auth, (req, res) => {
                 message: "Transfer not supported"
             });
         }
-        if (req.body.amount <= 0) {
+        if (parseInt(req.body.amount) <= 0) {
             return res.status(403).json({
                 message: "Invalid Amount"
             });
         }
-        if (req.body.amount > account.balance) {
+        if (parseInt(req.body.amount) > account.balance) {
             return res.status(403).json({
                 message: "Insufficient Balance"
             });
@@ -229,10 +229,10 @@ router.post("/transfer", auth, (req, res) => {
                 });
             }
     
-            recAcc.balance += req.body.amount;
-            account.balance -= req.body.amount;
+            recAcc.balance += parseInt(req.body.amount);
+            account.balance -= parseInt(req.body.amount);
     
-            if (req.body.amount * 0.005 >= 500) {
+            if (parseInt(req.body.amount) * 0.005 >= 500) {
                 account.balance -= 500;
                 account.transactions.push({
                     otherPartyAccNum: 987654321012, // Account number of the bank
@@ -242,12 +242,12 @@ router.post("/transfer", auth, (req, res) => {
                     dateOfTrans: today
                 });
             } else {
-                account.balance -= (req.body.amount * 0.005);
+                account.balance -= (parseInt(req.body.amount) * 0.005);
                 account.transactions.push({
                     otherPartyAccNum: 987654321012, // Account number of the
                     type: "debit",
                     source: "bank",
-                    amount: req.body.amount * 0.005,
+                    amount: parseInt(req.body.amount) * 0.005,
                     dateOfTrans: today
                 });
             }
@@ -258,7 +258,7 @@ router.post("/transfer", auth, (req, res) => {
                 otherPartyAccNum: accnum,
                 type: "credit",
                 source: "transfer",
-                amount: req.body.amount,
+                amount: parseInt(req.body.amount),
                 dateOfTrans: today
             });
     
@@ -266,7 +266,7 @@ router.post("/transfer", auth, (req, res) => {
                 otherPartyAccNum: transferTo,
                 type: "debit",
                 source: "transfer",
-                amount: req.body.amount,
+                amount: parseInt(req.body.amount),
                 dateOfTrans: today
             });
 
@@ -302,7 +302,7 @@ router.post("/repay", auth, (req, res) => {
     const accnum = req.body.accnum;
 
     // Checking if req params are present
-    if (!(req.body.accnum && req.body.amount)) {
+    if (!(req.body.accnum && parseInt(req.body.amount))) {
         return res.status(500).json({
             message: "Required Parameters accnum, amount not passed"
         });
@@ -320,32 +320,32 @@ router.post("/repay", auth, (req, res) => {
                 message: "No loan on this account"
             });
         }
-        if (req.body.amount <= 0) {
+        if (parseInt(req.body.amount) <= 0) {
             return res.status(409).json({
                 message: "Invalid Amount"
             });
         }
-        if (req.body.amount > account.balance) {
+        if (parseInt(req.body.amount) > account.balance) {
             return res.status(409).json({
                 message: "Insufficient money to repay loan"
             });
         }
-        if (req.body.amount > account.loan.loanAmount * 0.1) {
+        if (parseInt(req.body.amount) > account.loan.loanAmount * 0.1) {
             return res.status(409).json({
                 message: "Can repay only 10% at a time"
             });
         }
 
         // Repayment from linked bank acc
-        account.loan.amountLeft -= req.body.amount;
-        account.balance -= req.body.amount;
+        account.loan.amountLeft -= parseInt(req.body.amount);
+        account.balance -= parseInt(req.body.amount);
 
         const today = new Date();
         account.transactions.push({
             otherPartyAccNum: accnum,
             type: "debit",
             source: "repay",
-            amount: req.body.amount,
+            amount: parseInt(req.body.amount),
             dateOfTrans: today
         });
 
