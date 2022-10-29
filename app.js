@@ -10,6 +10,10 @@ const account = require("./routes/account");
 const transact = require("./routes/transact");
 const schedule = require("./scheduledFunc/scheduledFuncs");
 
+app.get("/", (req, res) => {
+    res.status(200).send("Server Started");
+})
+
 // Middelware to parse the body
 app.use(bodyParser.json());
 
@@ -27,10 +31,6 @@ mongoose.connect(process.env.DB_CONNECTION, () => {
 
 // Scheduled task for interest and fees payment
 schedule.initScheduledFunc();
-
-app.get("/", (req, res) => {
-    res.status(200).send("Server Started");
-})
 
 app.listen(PORT, () => console.log("Started"));
 
