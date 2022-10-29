@@ -30,4 +30,8 @@ schedule.initScheduledFunc();
 
 app.listen(PORT, () => console.log("Started"));
 
+app.route("/", (req, res) => {
+    res.status(200).send("Server Started");
+})
+
 module.exports = app;
