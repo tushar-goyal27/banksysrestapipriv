@@ -29,3 +29,5 @@ mongoose.connect(process.env.DB_CONNECTION, () => {
 schedule.initScheduledFunc();
 
 app.listen(PORT, () => console.log("Started"));
+
+module.exports = app;
