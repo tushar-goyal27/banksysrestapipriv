@@ -28,10 +28,11 @@ mongoose.connect(process.env.DB_CONNECTION, () => {
 // Scheduled task for interest and fees payment
 schedule.initScheduledFunc();
 
-app.listen(PORT, () => console.log("Started"));
-
 app.route("/", (req, res) => {
     res.status(200).send("Server Started");
 })
+
+app.listen(PORT, () => console.log("Started"));
+
 
 module.exports = app;
