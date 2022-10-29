@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-// require("dotenv/config");
+require("dotenv/config");
 
 const app = express();
 
@@ -10,7 +10,6 @@ const account = require("./routes/account");
 const transact = require("./routes/transact");
 const schedule = require("./scheduledFunc/scheduledFuncs");
 
-console.log("1");
 app.get("/", (req, res) => {
     res.status(200).send("Server Started");
 })
@@ -26,13 +25,14 @@ app.use("/transact", transact);
 const PORT = 5000;
 
 // Database connection
-// mongoose.connect(process.env.DB_CONNECTION, () => {
-//     console.log("Connected to DB");
-// })
+mongoose.connect(process.env.DB_CONNECTION, () => {
+    console.log("Connected to DB");
+})
 
 // Scheduled task for interest and fees payment
 schedule.initScheduledFunc();
 
 app.listen(PORT, () => console.log("Started"));
+
 
 module.exports = app;
